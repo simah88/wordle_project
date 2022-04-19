@@ -21,9 +21,15 @@ def plot_probabilities(sorted_probabilities_comb):
     plt.show()
 
 class WordleStrategist(object):
-    def __init__(self) -> None:
-        pass
-    
+    def __init__(self):
+        self.five_word_list = []
+
+        for word in english_words_lower_alpha_set:
+            if len(word)==5:
+                self.five_word_list.append(word)
+
+        print("Inital number of possible words:", len(self.five_word_list))
+
     def give_initial_suggestions(self, num_suggestions=5):
         raise NotImplementedError("give_initial_suggestions is needed for the child class of the wordlestrategist")
 
@@ -34,25 +40,7 @@ class WordleStrategist(object):
 
 class OccurrenceWordleStrategist(WordleStrategist):
     def __init__(self):
-        self.five_word_list = []
-
-        for word in english_words_lower_alpha_set:
-        # for word in words.words():
-            if len(word)==5:
-                # counts = defaultdict(lambda : 0)
-                # repeated_alphabet = False
-                # for alphabet in word:
-                #     counts[alphabet] += 1
-                #     if counts[alphabet] > 1:
-                #         repeated_alphabet = True
-                #         break
-
-                # if not repeated_alphabet:
-                self.five_word_list.append(word)
-                # self.five_word_list.append(word.lower())
-                
-        # print(self.five_word_list)
-        print("Inital number of possible words:", len(self.five_word_list))
+        super().__init__()
 
     def give_suggestions_from_list(self, five_word_list, num_suggestions):
 
@@ -79,9 +67,7 @@ class OccurrenceWordleStrategist(WordleStrategist):
         print(sorted_probabilities_comb[:num_suggestions]) # suggestions
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
-        """
-        haven't fixed the color and black 
-        """
+     
         black_and_yellow = ''.join(set(black).intersection(yellow))
         black_and_green = ''.join(set(black).intersection(green))
         black_and_color = black_and_yellow + black_and_green
@@ -153,14 +139,8 @@ class OccurrenceWordleStrategist(WordleStrategist):
 
 class RandomWordleStrategist(WordleStrategist):
     def __init__(self):
-        self.five_word_list = []
-
-        for word in english_words_lower_alpha_set:
-            if len(word)==5:
-                self.five_word_list.append(word)
-
-        print("Inital number of possible words:", len(self.five_word_list))
-
+        super().__init__()
+    
     def give_suggestions_from_list(self, five_word_list, num_suggestions):
         if len(five_word_list) > num_suggestions:
             random_suggestions = random.sample(five_word_list, num_suggestions)
