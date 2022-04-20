@@ -1,6 +1,5 @@
 from english_words import english_words_lower_alpha_set
 from nltk.corpus import words
-
 from collections import defaultdict
 from copy import deepcopy
 
@@ -64,13 +63,15 @@ class OccurrenceWordleStrategist(WordleStrategist):
 
         # print(len(probabilities_comb))
         sorted_probabilities_comb = sorted(probabilities_comb.items(), key=lambda x: x[1], reverse=True)
-        print(sorted_probabilities_comb[:num_suggestions]) # suggestions
+        # print(sorted_probabilities_comb[:num_suggestions]) # suggestions
+        return sorted_probabilities_comb[:num_suggestions]
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
      
         black_and_yellow = ''.join(set(black).intersection(yellow))
         black_and_green = ''.join(set(black).intersection(green))
         black_and_color = black_and_yellow + black_and_green
+        count_repeated = black.count(black_and_color)
         
         black_and_color_pos = []
         for character2 in black_and_color:
@@ -78,6 +79,8 @@ class OccurrenceWordleStrategist(WordleStrategist):
                 if character2 == character:
                     black_and_color_pos.append(pos)
         
+        black_and_color = black_and_color*len(black_and_color_pos)
+
         trimed_list = deepcopy(self.five_word_list)
         
         assert len(yellow) == len(yellow_pos)
@@ -130,10 +133,10 @@ class OccurrenceWordleStrategist(WordleStrategist):
             self.five_word_list = trimed_list
             print("Number of valid words remains:", len(self.five_word_list))
 
-        self.give_suggestions_from_list(self.five_word_list, num_suggestions)
+        return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
 
     def give_initial_suggestions(self, num_suggestions=5):
-        self.give_suggestions_from_list(self.five_word_list, num_suggestions)
+        return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
 
 
 
