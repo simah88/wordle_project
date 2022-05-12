@@ -67,49 +67,53 @@ class OccurrenceWordleStrategist(WordleStrategist):
         return sorted_probabilities_comb[:num_suggestions]
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
-     
-        black_and_yellow = ''.join(set(black).intersection(yellow))
-        black_and_green = ''.join(set(black).intersection(green))
-        black_and_color = black_and_yellow + black_and_green
-        count_repeated = black.count(black_and_color)
+    #   when triming the word list, considering both green and black is important.
+    #   I found more easier way than considering both green and black. 
+        # black_and_yellow = ''.join(set(black).intersection(yellow))
+        # black_and_green = ''.join(set(black).intersection(green))
+        # black_and_color = black_and_yellow + black_and_green
+        # count_repeated = black.count(black_and_color)
+        # print(count_repeated)
+        # black_and_color_pos = []
+        # for character2 in black_and_color:
+        #     for character, pos in zip(black, black_pos):
+        #         if character2 == character:
+        #             black_and_color_pos.append(pos)
         
-        black_and_color_pos = []
-        for character2 in black_and_color:
-            for character, pos in zip(black, black_pos):
-                if character2 == character:
-                    black_and_color_pos.append(pos)
-        
-        black_and_color = black_and_color*len(black_and_color_pos)
+        # black_and_color = black_and_color*count_repeated
+        # print('determine where is wrong', black_and_color, black_and_color_pos)
 
-        trimed_list = deepcopy(self.five_word_list)
+        trimmed_list = deepcopy(self.five_word_list)
         
         assert len(yellow) == len(yellow_pos)
         assert len(green) == len(green_pos)
-        assert len(black_and_color) == len(black_and_color_pos)
+        # assert len(black_and_color) == len(black_and_color_pos)
         assert len(np.intersect1d(yellow_pos, green_pos)) == 0
         
+
+
         for word in self.five_word_list:
             word_is_trimed = False
             
             for character in black:
-                if (character in word) & (character not in black_and_color):
-                    trimed_list.remove(word)
+                if (character in word) & (character not in green):
+                    trimmed_list.remove(word)
                     word_is_trimed = True
                     break
             if word_is_trimed:
                 continue
 
-            for character, pos in zip(black_and_color, black_and_color_pos):
-                if word[pos] == character:
-                    trimed_list.remove(word)
-                    word_is_trimed = True
-                    break
-            if word_is_trimed:
-                continue
+            # for character, pos in zip(black_and_color, black_and_color_pos):
+            #     if word[pos] == character:
+            #         trimed_list.remove(word)
+            #         word_is_trimed = True
+            #         break
+            # if word_is_trimed:
+            #     continue
 
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     word_is_trimed = True
                     break
             if word_is_trimed:
@@ -117,13 +121,25 @@ class OccurrenceWordleStrategist(WordleStrategist):
 
             for character, pos in zip(yellow, yellow_pos):
                 if character not in word:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     break
                 if word[pos] == character:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     break
 
-        return trimed_list
+        temp = list('qwert')
+
+        for i, char in zip(black_pos, black):
+            temp[i] = char
+        for i, char in zip(yellow_pos, yellow):
+            temp[i] = char        
+        for i, char in zip(green_pos, green):
+            temp[i] = char
+        word_itself ="".join(temp)
+        if word_itself in trimmed_list:
+            trimmed_list.remove(word_itself)
+
+        return trimmed_list
         
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
@@ -150,40 +166,24 @@ class RandomWordleStrategist(WordleStrategist):
         else:
             random_suggestions = five_word_list
         print(random_suggestions) # suggestions
+        return random_suggestions
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
-        
-        black_and_yellow = ''.join(set(black).intersection(yellow))
-        black_and_green = ''.join(set(black).intersection(green))
-        black_and_color = black_and_yellow + black_and_green
-        
-        black_and_color_pos = []
-        for character2 in black_and_color:
-            for character, pos in zip(black, black_pos):
-                if character2 == character:
-                    black_and_color_pos.append(pos)
-        
-        trimed_list = deepcopy(self.five_word_list)
+    #   when triming the word list, considering both green and black is important.
+    #   I found more easier way than considering both green and black. 
+
+        trimmed_list = deepcopy(self.five_word_list)
         
         assert len(yellow) == len(yellow_pos)
         assert len(green) == len(green_pos)
-        assert len(black_and_color) == len(black_and_color_pos)
         assert len(np.intersect1d(yellow_pos, green_pos)) == 0
         
         for word in self.five_word_list:
             word_is_trimed = False
             
             for character in black:
-                if character in word:
-                    trimed_list.remove(word)
-                    word_is_trimed = True
-                    break
-            if word_is_trimed:
-                continue
-
-            for character, pos in zip(black_and_color, black_and_color_pos):
-                if word[pos] == character:
-                    trimed_list.remove(word)
+                if (character in word) & (character not in green):
+                    trimmed_list.remove(word)
                     word_is_trimed = True
                     break
             if word_is_trimed:
@@ -191,7 +191,7 @@ class RandomWordleStrategist(WordleStrategist):
 
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     word_is_trimed = True
                     break
             if word_is_trimed:
@@ -199,13 +199,25 @@ class RandomWordleStrategist(WordleStrategist):
 
             for character, pos in zip(yellow, yellow_pos):
                 if character not in word:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     break
                 if word[pos] == character:
-                    trimed_list.remove(word)
+                    trimmed_list.remove(word)
                     break
 
-        return trimed_list
+        temp = list('qwert')
+
+        for i, char in zip(black_pos, black):
+            temp[i] = char
+        for i, char in zip(yellow_pos, yellow):
+            temp[i] = char        
+        for i, char in zip(green_pos, green):
+            temp[i] = char
+        word_itself ="".join(temp)
+        if word_itself in trimmed_list:
+            trimmed_list.remove(word_itself)
+
+        return trimmed_list
         
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
@@ -215,9 +227,9 @@ class RandomWordleStrategist(WordleStrategist):
             self.five_word_list = trimed_list
             print("Number of valid words remains:", len(self.five_word_list))
 
-        self.give_suggestions_from_list(self.five_word_list, num_suggestions)
+        return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
 
     def give_initial_suggestions(self, num_suggestions=5):
-        self.give_suggestions_from_list(self.five_word_list, num_suggestions)
+        return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
 
 
