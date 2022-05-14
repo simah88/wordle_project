@@ -3,6 +3,8 @@ class WordleAgent(object):
     def __init__(self, word):
         """word needs to be the answer of a game."""
         self.word = word 
+    def __repr__(self) -> str:
+        return repr(self.word)
     
     def attempt_word(self, trial):
         """Finding black, yellow, green characters and indice"""
