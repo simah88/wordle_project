@@ -73,7 +73,7 @@ class OccurrenceWordleStrategist(WordleStrategist):
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
     #   when triming the word list, considering both green and black is important.
-    #   I found more easier way than considering both green and black. 
+    #   I found an easier way than considering both green and black. 
         # black_and_yellow = ''.join(set(black).intersection(yellow))
         # black_and_green = ''.join(set(black).intersection(green))
         # black_and_color = black_and_yellow + black_and_green
@@ -98,30 +98,42 @@ class OccurrenceWordleStrategist(WordleStrategist):
 
 
         for word in self.five_word_list:
-            word_is_trimed = False
+            word_is_trimmed = False
             
             for character in black:
-                if (character in word) & (character not in green):
+                if (character in word) & (character not in green)& (character not in yellow):
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
+                continue
+            
+            for character, pos in zip(black, black_pos):
+                if (word[pos] == character) & (character in green):
+                    trimmed_list.remove(word)
+                    word_is_trimmed = True
+                    break
+                if (word[pos] == character) & (character in yellow):
+                    trimmed_list.remove(word)
+                    word_is_trimmed = True
+                    break
+            if word_is_trimmed:
                 continue
 
             # for character, pos in zip(black_and_color, black_and_color_pos):
             #     if word[pos] == character:
-            #         trimed_list.remove(word)
-            #         word_is_trimed = True
+            #         trimmed_list.remove(word)
+            #         word_is_trimmed = True
             #         break
-            # if word_is_trimed:
+            # if word_is_trimmed:
             #     continue
 
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
                 continue
 
             for character, pos in zip(yellow, yellow_pos):
@@ -148,10 +160,10 @@ class OccurrenceWordleStrategist(WordleStrategist):
         
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
-        trimed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
+        trimmed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
 
         if not explore:
-            self.five_word_list = trimed_list
+            self.five_word_list = trimmed_list
             print("Number of valid words remains:", len(self.five_word_list))
 
         return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
@@ -184,22 +196,34 @@ class RandomWordleStrategist(WordleStrategist):
         assert len(np.intersect1d(yellow_pos, green_pos)) == 0
         
         for word in self.five_word_list:
-            word_is_trimed = False
+            word_is_trimmed = False
             
             for character in black:
-                if (character in word) & (character not in green):
+                if (character in word) & (character not in green)& (character not in yellow):
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
+                continue
+            
+            for character, pos in zip(black, black_pos):
+                if (word[pos] == character) & (character in green):
+                    trimmed_list.remove(word)
+                    word_is_trimmed = True
+                    break
+                if (word[pos] == character) & (character in yellow):
+                    trimmed_list.remove(word)
+                    word_is_trimmed = True
+                    break
+            if word_is_trimmed:
                 continue
 
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
                 continue
 
             for character, pos in zip(yellow, yellow_pos):
@@ -226,10 +250,10 @@ class RandomWordleStrategist(WordleStrategist):
         
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
-        trimed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
+        trimmed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
 
         if not explore:
-            self.five_word_list = trimed_list
+            self.five_word_list = trimmed_list
             print("Number of valid words remains:", len(self.five_word_list))
 
         return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
@@ -281,22 +305,22 @@ class MixedWordleStrategist(WordleStrategist):
         
 
         for word in self.five_word_list:
-            word_is_trimed = False
+            word_is_trimmed = False
             
             for character in black:
                 if (character in word) & (character not in green):
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
                 continue
 
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
                     trimmed_list.remove(word)
-                    word_is_trimed = True
+                    word_is_trimmed = True
                     break
-            if word_is_trimed:
+            if word_is_trimmed:
                 continue
 
             for character, pos in zip(yellow, yellow_pos):
@@ -332,10 +356,10 @@ class MixedWordleStrategist(WordleStrategist):
         
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
-        trimed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
+        trimmed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
 
         if not explore:
-            self.five_word_list = trimed_list
+            self.five_word_list = trimmed_list
             print("Number of valid words remains:", len(self.five_word_list))
 
         return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
