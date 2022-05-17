@@ -28,34 +28,14 @@ class WordleStrategist(object):
         guess_word_list = guess_word_df[0].tolist() 
         self.five_word_list = guess_word_list
 
-        # for word in english_words_lower_alpha_set:
-        #     if len(word)==5:
-        #         self.five_word_list.append(word)
-
         # print("Initial number of possible words:", len(self.five_word_list))
 
     def trim_word_list(self, black, black_pos, yellow, yellow_pos, green, green_pos):
-    #   when triming the word list, considering both green and black is important.
-    #   I found an easier way than considering both green and black. 
-        # black_and_yellow = ''.join(set(black).intersection(yellow))
-        # black_and_green = ''.join(set(black).intersection(green))
-        # black_and_color = black_and_yellow + black_and_green
-        # count_repeated = black.count(black_and_color)
-        # print(count_repeated)
-        # black_and_color_pos = []
-        # for character2 in black_and_color:
-        #     for character, pos in zip(black, black_pos):
-        #         if character2 == character:
-        #             black_and_color_pos.append(pos)
-        
-        # black_and_color = black_and_color*count_repeated
-        # print('determine where is wrong', black_and_color, black_and_color_pos)
 
         trimmed_list = deepcopy(self.five_word_list)
         
         assert len(yellow) == len(yellow_pos)
         assert len(green) == len(green_pos)
-        # assert len(black_and_color) == len(black_and_color_pos)
         assert len(np.intersect1d(yellow_pos, green_pos)) == 0
 
         for word in self.five_word_list:
@@ -77,14 +57,6 @@ class WordleStrategist(object):
             if word_is_trimmed:
                 continue
 
-            # for character, pos in zip(black_and_color, black_and_color_pos):
-            #     if word[pos] == character:
-            #         trimmed_list.remove(word)
-            #         word_is_trimmed = True
-            #         break
-            # if word_is_trimmed:
-            #     continue
-
             for character, pos in zip(green, green_pos):
                 if word[pos] != character:
                     trimmed_list.remove(word)
@@ -102,7 +74,6 @@ class WordleStrategist(object):
                     break
 
         return trimmed_list
-
 
     def give_suggestion_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                  green_pos, explore=False):
@@ -156,7 +127,6 @@ class OccurrenceBasedStrategist(WordleStrategist):
         return suggestions[0][0]
 
 
-
 class RandomStrategist(WordleStrategist):
     def __init__(self):
         super().__init__()
@@ -168,7 +138,6 @@ class RandomStrategist(WordleStrategist):
             random_suggestions = five_word_list
         # print(random_suggestions) # suggestions
         return random_suggestions
-
       
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
@@ -185,6 +154,7 @@ class RandomStrategist(WordleStrategist):
         suggestions = self.give_suggestions_from_obs(black, black_pos, yellow, yellow_pos, green,
                                   green_pos, 1, explore)
         return suggestions[0]
+
 
 class MixedStrategist(WordleStrategist):
     """
@@ -218,7 +188,6 @@ class MixedStrategist(WordleStrategist):
         # print(sorted_probabilities_comb[:num_suggestions]) # suggestions
         return sorted_probabilities_comb[:num_suggestions]
 
-
     def give_random_from_list(self, five_word_list, num_suggestions):
         if len(five_word_list) > num_suggestions:
             random_suggestions = random.sample(five_word_list, num_suggestions)
@@ -226,8 +195,7 @@ class MixedStrategist(WordleStrategist):
             random_suggestions = five_word_list
         # print(random_suggestions) # suggestions
         return random_suggestions
-
-        
+   
     def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
                                   green_pos, num_suggestions=5, explore=False):
         trimmed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
