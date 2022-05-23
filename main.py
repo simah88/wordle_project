@@ -1,4 +1,4 @@
-from strategist import OccurrenceBasedStrategist, RandomStrategist, MixedStrategist
+from strategist import OccurrenceBasedStrategist, RandomStrategist, MixedStrategist, EntropyBasedStrategist
 from wordle_agent import WordleAgent
 import numpy as np
 import pandas as pd
@@ -8,10 +8,10 @@ from tqdm import tqdm
 answer_word_df = pd.read_csv('answers.txt', header= None)
 answer_word_list = answer_word_df[0].tolist()
 
-for strategist in [OccurrenceBasedStrategist, RandomStrategist, MixedStrategist]:
+for strategist in [EntropyBasedStrategist, OccurrenceBasedStrategist]:
     attempt_count =[]
     no_answer_words=[]
-    for word in tqdm(answer_word_list):
+    for word in tqdm(answer_word_list, desc='loop over possible answers'):
         helper = strategist()
         suggestion = helper.give_suggestion_from_obs('', [], '', [], '', [])
         agent = WordleAgent(word)

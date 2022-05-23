@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import random
 
 import pandas as pd
+import itertools
+from tqdm import tqdm
 
 
 def plot_probabilities(sorted_probabilities_comb):
@@ -22,9 +24,32 @@ def plot_probabilities(sorted_probabilities_comb):
     ax.bar(X, Y)
     plt.show()
 
+def color_pattern_to_char_position(word, pattern):
+    """
+    inputs : word is string, pattern is list of string, consisting of 'k' for black,'y' for yellow,'g' for green
+    """
+    assert len(word) == len(pattern)
+    black_char = ''
+    black_pos = []
+    yellow_char = ''
+    yellow_pos = []
+    green_char = ''
+    green_pos = []
+    for i in range(len(word)):
+        if pattern[i] =='b':
+            black_char+=word[i]
+            black_pos.append(i)
+        elif pattern[i] == 'y':
+            yellow_char+=word[i]
+            yellow_pos.append(i)
+        else:
+            green_char+=word[i]
+            green_pos.append(i)
+    return black_char, black_pos, yellow_char, yellow_pos, green_char, green_pos
+
 class WordleStrategist(object):
     def __init__(self):
-        guess_word_df = pd.read_csv('guesses.txt', header= None)
+        guess_word_df = pd.read_csv('answers.txt', header= None)
         guess_word_list = guess_word_df[0].tolist() 
         self.five_word_list = guess_word_list
 
@@ -211,3 +236,44 @@ class MixedStrategist(WordleStrategist):
         suggestions = self.give_suggestions_from_obs(black, black_pos, yellow, yellow_pos, green,
                                   green_pos, 1, explore)
         return suggestions[0]
+
+
+class EntropyBasedStrategist(WordleStrategist):
+    def __init__(self):
+        super().__init__()
+
+    def give_suggestions_from_list(self, five_word_list, num_suggestions):
+
+        color_list = ['k', 'y', 'g'] 
+        entropy = defaultdict(lambda : 0.0)
+        for word in tqdm(five_word_list, desc = 'entropy check'):
+            
+            for pattern in itertools.product(color_list, repeat=5):
+                black_char, black_pos, yellow_char, yellow_pos, green_char, green_pos = color_pattern_to_char_position(word, pattern)
+        
+                trimmed_list = self.trim_word_list(black_char, black_pos, yellow_char, yellow_pos, green_char, green_pos)
+                prob = len(trimmed_list)/len(five_word_list)
+                if prob > 0:
+                    entropy[word] -= prob*np.log2(prob) 
+            
+        sorted_entropy = sorted(entropy.items(), key=lambda x: x[1], reverse=True)
+        # print(sorted_entropy[:num_suggestions])
+        return sorted_entropy[:num_suggestions]
+      
+    def give_suggestions_from_obs(self, black, black_pos, yellow, yellow_pos, green,
+                                  green_pos, num_suggestions=5, explore=False):
+        if len(black) == 0 and len(yellow) == 0 and len(green) == 0:
+            return [('rarer', 1.5348546467182962)]
+        trimmed_list = self.trim_word_list(black, black_pos, yellow, yellow_pos, green, green_pos)
+
+        if not explore:
+            self.five_word_list = trimmed_list
+            # print("Number of valid words remains:", len(self.five_word_list))
+
+        return self.give_suggestions_from_list(self.five_word_list, num_suggestions)
+
+    def give_suggestion_from_obs(self, black, black_pos, yellow, yellow_pos, green,
+                                 green_pos, explore=False):
+        suggestions = self.give_suggestions_from_obs(black, black_pos, yellow, yellow_pos, green,
+                                  green_pos, 1, explore)
+        return suggestions[0][0]
